@@ -1,67 +1,63 @@
-Scriptname XCNukaMachine extends ObjectReference
+; Script Name
+ScriptName XCNukaMachine Extends ObjectReference
 
+; Properties
 Group Main
-	Message property Menu mandatory auto
-	Container property dummyContainer mandatory auto
-	FormList property WarmDrinks mandatory auto const
-	FormList property ColdDrinks mandatory auto const
+	Message property Menu Mandatory Auto
+	Message property RequiresPower Mandatory Auto
+	Container property DummyContainer Mandatory Auto
+	FormList property WarmDrinks Mandatory Auto
+	FormList property ColdDrinks Mandatory Auto
 EndGroup
 
-ObjectReference containerREF
-bool isPowered = false
+; Variables
+ObjectReference ContainerREF
 
-; Events
+; Basic Events
 Event OnActivate(ObjectReference AkActionRef)
-	If (isPowered == true)
+	If (Self.IsPowered() == true)
 		self.ShowMenu(0)
 	Else
-		debug.Notification("This requires power to work!")
+		RequiresPower.Show()
 	EndIf
 EndEvent
 
-Event OnPowerOff()
-	isPowered = false
-EndEvent
-
-Event OnPowerOn(ObjectReference akPowerGenerator)
-	isPowered = true
-EndEvent
-
+; Workshop Events
 Event OnWorkshopObjectPlaced(ObjectReference akReference)
-	containerREF = self.PlaceAtMe(dummyContainer as Form, 1, true, false, false)
-	containerREF.BlockActivation(true, true)
+	ContainerREF = self.PlaceAtMe(DummyContainer as Form, 1, true, false, false)
+	ContainerREF.BlockActivation(true, true)
 EndEvent
 
 Event OnWorkshopObjectMoved(ObjectReference akReference)
-	containerREF.Enable(false)
-	containerREF.MoveTo(self as ObjectReference, 0, 0, 0, true)
+	ContainerREF.Enable(false)
+	ContainerREF.MoveTo(self as ObjectReference, 0, 0, 0, true)
 EndEvent
 
 Event OnWorkshopObjectDestroyed(ObjectReference akReference)
-	containerREF.Disable(false)
-	containerREF.Delete()
-	containerREF.RemoveAllItems(Game.GetPlayer() as ObjectReference, true)
+	ContainerREF.Disable(false)
+	ContainerREF.Delete()
+	ContainerREF.RemoveAllItems(Game.GetPlayer() as ObjectReference, true)
 EndEvent
 
 Event OnWorkshopObjectGrabbed(ObjectReference akReference)
-	containerREF.Disable(false)
+	ContainerREF.Disable(false)
 EndEvent
 
 ; Functions
-Function ShowMenu(int btn)
+Function ShowMenu(Int btn)
 	btn = Menu.Show()
 
 	If (btn == 0)
-    	containerREF.Activate(Game.GetPlayer() as ObjectReference, true)
+    		ContainerREF.Activate(Game.GetPlayer() as ObjectReference, true)
 	ElseIf (btn == 1)
-		int i = 0
+		Int i = 0
 
 		While (i < WarmDrinks.GetSize())
-			int iCount = Game.GetPlayer().GetItemCount(WarmDrinks.GetAt(i))
+			Int iCount = Game.GetPlayer().GetItemCount(WarmDrinks.GetAt(i))
 
 			If (iCount > 0)
 				Game.GetPlayer().RemoveItem(WarmDrinks.GetAt(i), iCount, false, none)
-				containerREF.AddItem(ColdDrinks.GetAt(i), iCount, false)
+				ContainerREF.AddItem(ColdDrinks.GetAt(i), iCount, false)
 			EndIf
 
 			i += 1
