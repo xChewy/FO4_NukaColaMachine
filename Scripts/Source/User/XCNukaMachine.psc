@@ -17,11 +17,17 @@ Int SoundID
 
 ; Basic Events
 Event OnActivate(ObjectReference AkActionRef)
+	Self.ShowMenu(0)
+EndEvent
+
+Event OnLoad()
+	SoundID = IdleSound.Play(Self)
+
 	If (Self.IsPowered() == true)
-		Self.ShowMenu(0)
+		Sound.SetInstanceVolume(SoundID, 1)
 	Else
-		RequiresPower.Show()
-	EndIf
+		Sound.SetInstanceVolume(SoundID, 0)
+	EndIf	
 EndEvent
 
 ; Power Events
@@ -37,14 +43,6 @@ EndEvent
 Event OnWorkshopObjectPlaced(ObjectReference akReference)
 	ContainerREF = self.PlaceAtMe(DummyContainer as Form, 1, true, false, false)
 	ContainerREF.BlockActivation(true, true)
-
-	SoundID = IdleSound.Play(Self)
-
-	If (Self.IsPowered() == true)
-		Sound.SetInstanceVolume(SoundID, 1)
-	Else
-		Sound.SetInstanceVolume(SoundID, 0)
-	EndIf
 EndEvent
 
 Event OnWorkshopObjectMoved(ObjectReference akReference)
@@ -69,18 +67,22 @@ Function ShowMenu(Int btn)
 	If (btn == 0)
     		ContainerREF.Activate(Game.GetPlayer() as ObjectReference, true)
 	ElseIf (btn == 1)
-		Int i = 0
+		If (Self.IsPowered() == true)
+			Int i = 0
 
-		While (i < WarmDrinks.GetSize())
-			Int iCount = Game.GetPlayer().GetItemCount(WarmDrinks.GetAt(i))
+			While (i < WarmDrinks.GetSize())
+				Int iCount = Game.GetPlayer().GetItemCount(WarmDrinks.GetAt(i))
 
-			If (iCount > 0)
-				Game.GetPlayer().RemoveItem(WarmDrinks.GetAt(i), iCount, false, none)
-				ContainerREF.AddItem(ColdDrinks.GetAt(i), iCount, false)
-			EndIf
+				If (iCount > 0)
+					Game.GetPlayer().RemoveItem(WarmDrinks.GetAt(i), iCount, false, none)
+					ContainerREF.AddItem(ColdDrinks.GetAt(i), iCount, false)
+				EndIf
 
-			i += 1
-		EndWhile
+				i += 1
+			EndWhile
+		Else
+			RequiresPower.Show()
+		EndIf
 	ElseIf (btn == 2)
         ; Close Menu
 	EndIf
