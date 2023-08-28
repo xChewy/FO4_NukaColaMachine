@@ -8,24 +8,43 @@ Group Main
 	Container property DummyContainer Mandatory Auto
 	FormList property WarmDrinks Mandatory Auto
 	FormList property ColdDrinks Mandatory Auto
+	Sound Property IdleSound Mandatory Auto
 EndGroup
 
 ; Variables
 ObjectReference ContainerREF
+Int SoundID
 
 ; Basic Events
 Event OnActivate(ObjectReference AkActionRef)
 	If (Self.IsPowered() == true)
-		self.ShowMenu(0)
+		Self.ShowMenu(0)
 	Else
 		RequiresPower.Show()
 	EndIf
+EndEvent
+
+; Power Events
+Event OnPowerOn(ObjectReference akPowerGenerator)
+	Sound.SetInstanceVolume(SoundID, 1)
+EndEvent
+
+Event OnPowerOff()
+	Sound.SetInstanceVolume(SoundID, 0)
 EndEvent
 
 ; Workshop Events
 Event OnWorkshopObjectPlaced(ObjectReference akReference)
 	ContainerREF = self.PlaceAtMe(DummyContainer as Form, 1, true, false, false)
 	ContainerREF.BlockActivation(true, true)
+
+	SoundID = IdleSound.Play(Self)
+
+	If (Self.IsPowered() == true)
+		Sound.SetInstanceVolume(SoundID, 1)
+	Else
+		Sound.SetInstanceVolume(SoundID, 0)
+	EndIf
 EndEvent
 
 Event OnWorkshopObjectMoved(ObjectReference akReference)
